@@ -22,14 +22,18 @@ public class BoardLikeServiceImpl implements BoardLikeService {
         Member member = memberService.findByUsername(loginMemberUsername);
 
         Board_Like_check boardLike = boardLikeRepository.findMemberId(member.getId(), boardId);
+
         if(boardLike != null && boardLike.isLike_check()) {
             return true;
         }
+
         return false;
     }
+
 
     @Override
     public void deleteByBoardId(Long boardId) {
         boardLikeRepository.deleteBoard_Id(boardId);
     }
+
 }

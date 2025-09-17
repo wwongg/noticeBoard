@@ -1,18 +1,20 @@
 package com.example.noticeBoard.controller;
 
 import com.example.noticeBoard.Dto.LoginDto;
+import com.example.noticeBoard.Dto.MemberDto;
 import com.example.noticeBoard.entity.Member;
 import com.example.noticeBoard.service.Impl.MemberServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ServerErrorException;
 
 @Controller
 @RequiredArgsConstructor
@@ -64,5 +66,34 @@ public class MemberController {
         return "redirect:/";
     }
 
+    @GetMapping("/joinMember")
+    public String createMember(Model model) {
+        model.addAttribute("member", new MemberDto());
+        return "member/joinMember";
+    }
+
+    @PostMapping("/joinMember")
+    public String createMemberPost(@Valid @ModelAttribute("member") MemberDto memberDto, BindingResult
+            bindingResult,Model model) {
+
+        if (bindingResult.hasErrors()) {
+            return "member/joinMember";
+        }
+
+        if(!memberDto.getPassword().equals(memberDto.getPasswordConfirm())) {
+            bindingResult.rejectValue("passwordConfirm", "error.memberDto", "비밀번호가 일치하지 않습니다.");
+            return "member/joinMember";
+        }
+
+        try {
+            memberService.saveDto(memberDto);
+        } catch (Exception e) {
+            model.addAttribute("error", "회원가입 처리 중 오류 발생");
+            return "member/joinMember";
+        }
+
+        return "redirect:/";
+
+    }
 
 }

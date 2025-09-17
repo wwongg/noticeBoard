@@ -30,4 +30,5 @@ public class Board_Like_check {
     @OneToOne()
     @JoinColumn(name = "member_Id")
     private Member member;
+
 }

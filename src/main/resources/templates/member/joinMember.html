@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.w3.org/1999/xhtml">
+<head th:replace="fragments/header :: header"></head>
+<style>
+    body { font-family: 'Arial', sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; }
+    .container { max-width: 400px; margin: 80px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    h2 { margin-bottom: 25px; text-align: center; color: #333; }
+    label { display: block; font-weight: bold; margin-bottom: 6px; color: #444; text-align: left; }
+    input[type="text"], input[type="password"] { width: 100%; padding: 12px; margin-bottom: 14px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+    .error { color: firebrick; font-size: 13px; margin-top: -10px; margin-bottom: 12px; text-align: left; }
+    .verified { color: green; font-size: 13px; margin-top: -10px; margin-bottom: 12px; text-align: left; }
+    .btn { display: inline-block; margin: 10px 6px 0 0; padding: 10px 18px; font-size: 15px; color: white; border: none; border-radius: 6px; text-decoration: none; cursor: pointer; transition: 0.2s; }
+    .btn-primary { background-color: #4CAF50; }
+    .btn-primary:hover { background-color: #45a049; }
+    .btn-secondary { background-color: #2196F3; text-decoration: none; line-height: 32px; }
+    .btn-secondary:hover { background-color: #1976D2; }
+    .btn-group { text-align: center; margin-top: 15px; }
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<body>
+<div class="container">
+    <h2>회원가입</h2>
+    <form th:action="@{/joinMember}" method="post" th:object="${member}" id="signupForm">
+        <div>
+            <label th:for="username">아이디 (이메일)</label>
+            <input type="text" th:field="*{username}" id="mail">
+            <button type="button" class="btn btn-secondary" onclick="sendNumber()">인증번호 발송</button>
+            <div id="mailMsg" class="error"></div>
+        </div>
+        <div id="mail_number" style="display: none">
+            <input type="text" id="number" placeholder="인증번호 입력">
+            <button type="button" class="btn btn-secondary" onclick="confirmNumber()">이메일 인증</button>
+            <div id="verifyMsg" class="error"></div>
+        </div>
+
+        <div>
+            <label th:for="password">비밀번호</label>
+            <input type="password" th:field="*{password}">
+            <div class="error" th:errors="*{password}"></div>
+        </div>
+        <div>
+            <label th:for="passwordConfirm">비밀번호 확인</label>
+            <input type="password" th:field="*{passwordConfirm}">
+            <div class="error" th:errors="*{passwordConfirm}"></div>
+        </div>
+
+        <div class="btn-group">
+            <button type="submit" class="btn btn-primary" id="signupBtn" disabled>회원가입</button>
+            <a th:href="@{/}" class="btn btn-secondary">취소</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    let emailVerified = false;
+
+    function sendNumber() {
+    const email = $("#mail").val();
+    if (!email) {
+        $("#mailMsg").text("이메일을 입력해주세요");
+        return;
+    }
+    $("#mailMsg").text("");
+    $.ajax({
+        url: "/api/joinMember/send",
+        type: "post",
+        contentType: "application/json",   // 요청 JSON
+        dataType: "text",                  //
+        data: JSON.stringify({ email: email }),
+        success: function(data) {
+            $("#mailMsg").text("인증번호 발송 완료").removeClass("error").addClass("verified");
+            $("#mail_number").show();
+        },
+        error: function(err) {
+            $("#mailMsg").text("인증번호 발송 실패").removeClass("verified").addClass("error");
+        }
+    });
+}
+
+    function confirmNumber() {
+    const email = $("#mail").val();
+    const code = $("#number").val();
+    if (!code) {
+        $("#verifyMsg").text("인증번호를 입력해주세요").removeClass("verified").addClass("error");
+        return;
+    }
+
+    $.ajax({
+        url: "/api/joinMember/verify",
+        type: "post",
+        contentType: "application/json",   // 요청 JSON
+        dataType: "text",                  // 응답 JSON 기대
+        data: JSON.stringify({ email: email, verifyCode: code }),
+        success: function(res) {
+            emailVerified = true;
+            $("#verifyMsg").text("이메일 인증 완료!").removeClass("error").addClass("verified");
+            $("#signupBtn").prop("disabled", false);
+        },
+        error: function(err) {
+            emailVerified = false;
+            $("#verifyMsg").text("인증번호가 올바르지 않습니다").removeClass("verified").addClass("error");
+        }
+    });
+}
+
+    // 폼 제출 시 이메일 인증 체크
+    $("#signupForm").submit(function(e){
+        if (!emailVerified) {
+            alert("이메일 인증이 필요합니다.");
+            e.preventDefault();
+        }
+    });
+</script>
+</body>
+</html>

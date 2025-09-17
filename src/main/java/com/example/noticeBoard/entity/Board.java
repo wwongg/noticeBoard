@@ -35,6 +35,15 @@ public class Board {
 
     private Integer boardLike;
 
+    public void increaseCount() {
+        if(this.count == null) this.count = 0;
+        this.count++;
+    }
+    public void decreaseCount() {
+        if(this.count == null) this.count = 0;
+        if(this.count > 0) this.count--;
+    }
+
         // json 직렬화가 무한루프에 빠지고 있어 부모 쪽에 @JsonManagedReference
         // Board -> Member 참조는 직렬화 과정에서 무시되어 무한루프 방지된다.
         @JsonBackReference

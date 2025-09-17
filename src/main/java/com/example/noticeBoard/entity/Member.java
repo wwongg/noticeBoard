@@ -25,10 +25,13 @@ public class Member {
     private Long id;
 
     private String username;
-
     private String password;
+
+
 
         @JsonManagedReference
         @OneToMany(mappedBy = "member")
         private List<Board> boards = new ArrayList<>();
+
+
 }

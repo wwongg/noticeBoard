@@ -85,4 +85,5 @@ public class BoardSortServiceImpl implements BoardSortService {
     public Page<Board> lasBoardSortDesc(Pageable pageable) {
         return boardRepository.findAllByOrderByDateTimeDesc(pageable);
     }
+
 }

@@ -95,13 +95,16 @@ public class CommentServiceImpl implements CommentService {
         Long commentDtoId = commentDto.getId();
         Optional<Comment> byId = commentRepository.findById(commentDtoId);
         if(byId.isPresent()) {
-            Long commentId = byId.get().getId();
-            String commentWriter = byId.get().getMember().getUsername();
+            Comment comment = byId.get();
+            Long commentId = comment.getId();
+            String commentWriter = comment.getMember().getUsername();
 
             if (!username.equals(commentWriter)) {
                 throw new CommentException("댓글 지우기 로직 오류");
             }
             commentRepository.deleteById(commentId);
+
+            setComment(comment.getBoard().getId());
         } else {
             throw new NotFindPage_RestException("댓글 지우기 로직 오류: " + commentDtoId + "값이 없음");
         }
