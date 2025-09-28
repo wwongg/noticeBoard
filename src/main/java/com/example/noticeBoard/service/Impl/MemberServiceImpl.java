@@ -2,7 +2,6 @@ package com.example.noticeBoard.service.Impl;
 
 import com.example.noticeBoard.Dto.LoginDto;
 import com.example.noticeBoard.Dto.MemberDto;
-import com.example.noticeBoard.entity.Board;
 import com.example.noticeBoard.entity.Member;
 import com.example.noticeBoard.repository.MemberRepository;
 import com.example.noticeBoard.service.MemberService;
@@ -10,6 +9,7 @@ import jakarta.transaction.Transactional;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,6 +20,20 @@ import org.springframework.stereotype.Service;
 public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public void resetPassword(String username, String newPassword) {
+        Member member = memberRepository.findByUsername(username);
+        if(member == null) throw new RuntimeException("회원 없음: " + username);
+
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        member.setPassword(encodedPassword);
+
+        memberRepository.save(member);
+
+        log.info("회원 이메일 [{}]의 비밀번호가 변경되었습니다.", username);
+    }
+
 
 
     @Override
@@ -31,7 +45,8 @@ public class MemberServiceImpl implements MemberService {
     public Member saveDto(MemberDto memberDto) {
         Member member = Member.builder()
                 .username(memberDto.getUsername())
-                .password(memberDto.getPassword())
+                .password((passwordEncoder.encode(memberDto.getPassword())))
+
                 .build();
         return saveEntity(member);
     }
@@ -46,7 +61,7 @@ public class MemberServiceImpl implements MemberService {
         String password = loginDto.getPassword();
         Member byUsername = memberRepository.findByUsername(username);
         if (byUsername != null) {
-            if(byUsername.getPassword().equals(password)) {
+            if(passwordEncoder.matches(password, byUsername.getPassword())) {  // ✅ 암호화 비교
                 return true;
             }
         }

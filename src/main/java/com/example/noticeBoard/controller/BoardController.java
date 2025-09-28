@@ -122,11 +122,11 @@ public class BoardController {
             boardCheck = boardLikeService.isBoardCheck(loginMember, boardId);
         }
 
-        if(loginMember.getUsername().equals(board_write_user)) {
+        /*if(loginMember.getUsername().equals(board_write_user)) {
             model.addAttribute("board", byBoardID);
         } else {
             throw new LoginException("작성자만 수정할 수 있습니다.");
-        }
+        }*/
 
         model.addAttribute("allComment", allComment);
         model.addAttribute("comment", new CommentDto());
@@ -221,6 +221,20 @@ public class BoardController {
             e.printStackTrace();
             throw new Login_RestException("로그인 후 이용할 수 있습니다.");
         }
+    }
+
+    @GetMapping("/board/bookmarks")
+    public String getBookmarks(HttpSession session, Model model) {
+        Member loginMember = (Member) getSession(model, session);
+
+        if (loginMember == null) {
+            throw new Login_RestException("로그인 후 이용할 수 있습니다.");
+        }
+
+        List<Board> likedBoards = boardLikeService.findLikedBoards(loginMember);
+
+        model.addAttribute("likeBoards", likedBoards);
+        return "board/bookmarks";
     }
 
 

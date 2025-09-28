@@ -4,6 +4,8 @@ import com.example.noticeBoard.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
@@ -11,5 +13,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     // save()를 비롯한 여러 CRUD 메서드를 사용할 수 있게 한다.
     Member findByUsername(String username);
 
+    Optional<Member> findByEmail(String email);
 
 }

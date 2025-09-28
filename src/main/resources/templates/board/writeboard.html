@@ -1,89 +1,113 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/header :: header"></head>
+
+<head th:replace="fragments/header :: header">
+    <style>
+        body {
+            background-color: #f9f9f9;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            max-width: 700px;
+        }
+
+        .card {
+            margin-top: 50px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            font-weight: bold;
+            font-size: 1.2rem;
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-group-custom {
+            margin-top: 20px;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+        }
+    </style>
+</head>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script th:inline="javascript">
+    function writeboard() {
+        const title = document.getElementById('title_input').value;
+        const loginMember_username = document.getElementById('writer_input').value;
+        const password = document.getElementById('password_input').value;
+        const content = document.getElementById('content_input').value;
 
-    function writeboard(){
-      const title = document.getElementById('title_input').value;
-      const loginMember_username = document.getElementById('writer_input').value;
-      const password = document.getElementById('password_input').value;
-      const content = document.getElementById('content_input').value;
+        var boardDto = {
+            "title": title,
+            "password": password,
+            "content": content,
+            "memberDto": {
+                "username": loginMember_username
+            }
+        };
 
-      var boardDto={
-        "title" :title,
-        "password" : password,
-        "content": content,
-        "memberDto" :{
-          "username" :loginMember_username
-        }
-      }
-
-      $.ajax({
-        url :"boardWrit",
-        method : "post",
-        contentType : "application/json",
-        data: JSON.stringify(boardDto),
-        success :function (response){
-          window.location.href="/board"
-        },
-        error : function (xhr){
-          if (xhr.status ===500){
-            alert("서버 오류");
-          }
-          if (xhr.status ===400){
-            var errorMap = JSON.parse(xhr.responseText);
-           $.each(errorMap, function (key, value){
-             if(key==="title"){
-               alert(value);
-             }else if(key==="password"){
-               alert(value);
-             }else if(key==="content"){
-               alert(value);
-             }
-           })
-          }
-        }
-      });
-
+        $.ajax({
+            url: "boardWrit",
+            method: "post",
+            contentType: "application/json",
+            data: JSON.stringify(boardDto),
+            success: function (response) {
+                window.location.href = "/board"
+            },
+            error: function (xhr) {
+                if (xhr.status === 500) {
+                    alert("서버 오류");
+                }
+                if (xhr.status === 400) {
+                    var errorMap = JSON.parse(xhr.responseText);
+                    $.each(errorMap, function (key, value) {
+                        alert(value);
+                    })
+                }
+            }
+        });
     }
-    function cancle(){
-      window.location.href="/board";
+
+    function cancle() {
+        window.location.href = "/board";
     }
 </script>
-<body>
 
-<div class="container mt-5"th:object="${board}">
-    <div class="block table-responsive grid-view">
-        <table class="table table-bordered">
-            <caption class="hidden">코드폭탄</caption>
-            <tbody>
-            <tr>
-                <th><label th:for="writer">작성자</label></th>
-                <td>
-                    <input class="form-control" id="writer_input" type="text" th:value="${loginMember.username}" readonly></td>
-            </tr>
-            <tr>
-                <th><label th:for="title">제목</label></th>
-                <td colspan="3"><input class="form-control" id="title_input" type="text" th:field="*{title}"></td>
-            </tr>
-            <tr>
-                <th><label th:for="password">비밀번호</label></th>
-                <td colspan="3"><input class="form-control" id="password_input" type="password" th:field="*{password}"></td>
-            </tr>
-            <tr>
-                <th><label th:for="content">내용</label></th>
-                <td colspan="3">
-                    <textarea class="form-control" th:field="*{content}"  id="content_input" rows="5" cols="80" style="height: 235px; width: 614px;"></textarea>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-        <button onclick="writeboard()">글쓰기</button>
-        <button onclick="cancle()">취소</button>
+<body>
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            글 작성
+        </div>
+        <div class="card-body" th:object="${board}">
+            <div class="mb-3">
+                <label for="writer_input" class="form-label">작성자</label>
+                <input class="form-control" id="writer_input" type="text" th:value="${loginMember.username}" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="title_input" class="form-label">제목</label>
+                <input class="form-control" id="title_input" type="text" th:field="*{title}">
+            </div>
+            <div class="mb-3">
+                <label for="password_input" class="form-label">비밀번호</label>
+                <input class="form-control" id="password_input" type="password" th:field="*{password}">
+            </div>
+            <div class="mb-3">
+                <label for="content_input" class="form-label">내용</label>
+                <textarea class="form-control" th:field="*{content}" id="content_input" rows="8"></textarea>
+            </div>
+            <div class="d-flex justify-content-end btn-group-custom gap-2">
+                <button class="btn btn-success" onclick="writeboard()">글쓰기</button>
+                <button class="btn btn-secondary" onclick="cancle()">취소</button>
+            </div>
+        </div>
     </div>
 </div>
-
 </body>
+
 </html>

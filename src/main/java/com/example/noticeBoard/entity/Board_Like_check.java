@@ -1,6 +1,7 @@
 package com.example.noticeBoard.entity;
 
 
+import com.example.noticeBoard.Dto.BoardLikeDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,8 +28,17 @@ public class Board_Like_check {
     @JoinColumn(name = "board_Id")
     private Board board;
 
+
+
     @OneToOne()
     @JoinColumn(name = "member_Id")
     private Member member;
+
+
+
+    public boolean isLike_check() {
+        return like_check;
+    }
+
 
 }

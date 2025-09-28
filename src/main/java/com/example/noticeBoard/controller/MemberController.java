@@ -96,4 +96,37 @@ public class MemberController {
 
     }
 
+
+
+    @GetMapping("/member/resetPassword")
+    public String getResetPassword(@RequestParam("email") String email, Model model) {
+
+        model.addAttribute("email", email);
+        return "member/resetPassword";
+
+    }
+
+    @PostMapping("/member/resetPassword")
+    public String postResetPassword(@RequestParam("email") String email, @RequestParam("newPassword") String newPassword, @RequestParam("confirmPassword") String confirmPassword,
+                                    Model model) {
+
+        if(!newPassword.equals(confirmPassword)) {
+            model.addAttribute("message", "비밀번호가 일치하지 않습니다.");
+            return "member/resetPassword";
+        }
+
+        try {
+            memberService.resetPassword(email, newPassword);
+            model.addAttribute("message", "비밀번호가 성공적으로 변경되었습니다.");
+            return "redirect:/";
+        } catch (Exception e) {
+            log.error("비밀번호 변경 실패", e);
+            model.addAttribute("message", "비밀번호 변경 중 오류가 발생했습니다.");
+        }
+
+        return "member/resetPassword";
+    }
+
+
+
 }

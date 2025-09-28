@@ -1,11 +1,15 @@
 package com.example.noticeBoard.repository;
 
+import com.example.noticeBoard.Dto.BoardLikeDto;
 import com.example.noticeBoard.entity.Board_Like_check;
+import com.example.noticeBoard.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface BoardLikeRepository extends JpaRepository<Board_Like_check, Long> {
@@ -17,4 +21,6 @@ public interface BoardLikeRepository extends JpaRepository<Board_Like_check, Lon
     @Modifying
     @Query("delete from Board_Like_check b where b.board.Id = :boardId")
     void deleteBoard_Id(@Param("boardId") Long boardId);
+
+    List<Board_Like_check> findByMember(Member member);
 }
